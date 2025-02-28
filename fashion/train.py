@@ -1,5 +1,6 @@
 # --- Training code part (train.py) ---
 import os
+import time
 
 import torch
 from torch import nn
@@ -42,6 +43,18 @@ test_dataset = datasets.FashionMNIST(
 train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
+print(f"Number of training batches: {len(train_loader)}")
+print(f"Number of test batches: {len(test_loader)}")
+
+# Print class distribution
+class_counts = [0] * 10
+for _, label in train_dataset:
+    class_counts[label] += 1
+
+print("\nClass distribution in training set:")
+for i, (name, count) in enumerate(zip(class_names, class_counts)):
+    print(f"  {name}: {count} images")
+    
 class NeuralNetwork(nn.Module):
     def __init__(self) -> None:
         super().__init__()
@@ -69,10 +82,20 @@ optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 # Training function
 def train(dataloader, model, loss_fn, optimizer):
     size = len(dataloader.dataset)
+    num_batches = len(dataloader)
     model.train()
+    
+    total_images_processed = 0
+    running_loss = 0.0
+    start_time = time.time()
+    
+    print(f"\nTraining on {size} images in {num_batches} batches of size {batch_size}:")
+   
+   
     for batch, (X, y) in enumerate(dataloader):
         X, y = X.to(device), y.to(device)
-        
+        current_batch_size = X.shape[0]
+
         # Forward pass
         pred = model(X)
         loss = loss_fn(pred, y)
@@ -82,10 +105,29 @@ def train(dataloader, model, loss_fn, optimizer):
         loss.backward()
         optimizer.step()
         
+        # Update statistics
+        total_images_processed += current_batch_size
+        running_loss += loss.item()
+        
         if batch % 100 == 0:
             loss_value = loss.item()
             current = batch * len(X)
             print(f"loss: {loss_value:>7f}  [{current:>5d}/{size:>5d}]")
+            current = batch * batch_size + current_batch_size
+            percent_complete = 100 * total_images_processed / size
+            elapsed_time = time.time() - start_time
+            images_per_second = total_images_processed / elapsed_time if elapsed_time > 0 else 0
+            
+            print(f"Batch {batch+1}/{num_batches} | "
+                  f"Images: {total_images_processed}/{size} ({percent_complete:.1f}%) | "
+                  f"Loss: {loss.item():.4f} | "
+                  f"Speed: {images_per_second:.1f} img/s")
+    
+    epoch_loss = running_loss / num_batches
+    total_time = time.time() - start_time
+    print(f"\nEpoch completed in {total_time:.2f}s | Avg Loss: {epoch_loss:.4f}")
+    print(f"Total images processed: {total_images_processed} at {total_images_processed/total_time:.1f} img/s")
+
 
 # Testing function
 def test(dataloader, model, loss_fn):

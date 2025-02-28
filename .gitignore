@@ -3,3 +3,4 @@ data/*
 */data/*
 training.log
 .DS_STORE
+*/__pycache__/*

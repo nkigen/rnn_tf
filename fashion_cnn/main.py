@@ -1,17 +1,14 @@
 import inference
-import torch
-from torch import nn
-from torch.utils.data import DataLoader
+import utils
 from torchvision import datasets, transforms
 
 # Example usage of inference
 if __name__ == "__main__":
     # Device configuration
-    device = torch.accelerator.current_accelerator().type if torch.accelerator.is_available() else "cpu"
-    print(f"using {device} device")
+    device = utils.set_accelerator()
     
     # Load the model (Option 2 - recommended)
-    model = inference.load_model('models/fashion_mnist_model_params.pth', device)
+    model = inference.load_model(f'{utils.model_dir}/fashion_mnist_{utils.model_param_file_suffix}', device)
     
     # Load a test image
     transform = transforms.Compose([
@@ -27,7 +24,7 @@ if __name__ == "__main__":
     )
     
     # Get a sample image
-    img, label = test_dataset[3]
+    img, label = test_dataset[7]
     
     # Make prediction
     predicted_idx, predicted_class = inference.predict_image(img, model, device)

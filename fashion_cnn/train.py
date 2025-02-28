@@ -1,18 +1,16 @@
-# --- Training code part (train.py) ---
 import os
 import time
 
 import torch
+import utils
 from models import CNNNetwork
 from torch import nn
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 
-class_names = ['T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat',
-               'Sandal', 'Shirt', 'Sneaker', 'Bag', 'Ankle boot']
+class_names = utils.class_names
 # Device configuration
-device = torch.accelerator.current_accelerator().type if torch.accelerator.is_available() else "cpu"
-print(f"using {device} device")
+device = utils.set_accelerator()
 
 # Hyperparameters
 batch_size = 64
@@ -149,12 +147,12 @@ for t in range(num_epochs):
     # Save the model if it's the best so far
     if current_accuracy > best_accuracy:
         best_accuracy = current_accuracy
+        
         # Create directory if it doesn't exist
         os.makedirs('models', exist_ok=True)
         
-        
         # Save just the model parameters
-        torch.save(model.state_dict(), 'models/fashion_mnist_model_params.pth')
+        torch.save(model.state_dict(),f'{utils.model_dir}/fashion_mnist_{utils.model_param_file_suffix}')
         
         print(f"Model saved with accuracy: {(100*current_accuracy):>0.1f}%")
     else:

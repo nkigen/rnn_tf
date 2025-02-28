@@ -1,18 +1,18 @@
 import torch
+import utils
 from models import CNNNetwork
 
 # Class names for FashionMNIST
-class_names = ['T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat',
-               'Sandal', 'Shirt', 'Sneaker', 'Bag', 'Ankle boot']
+class_names = utils.class_names
 
 
 def load_model(model_path, device='cpu'):
     # Option 1: Load the entire model
-    if model_path.endswith('model.pth'):
+    if model_path.endswith(utils.model_file_suffix):
         model = torch.load(model_path, map_location=device)
     
     # Option 2: Load just the parameters into the model architecture
-    elif model_path.endswith('model_params.pth'):
+    elif model_path.endswith(utils.model_param_file_suffix):
         model = CNNNetwork().to(device)
         model.load_state_dict(torch.load(model_path, map_location=device))
     
@@ -26,6 +26,6 @@ def predict_image(img, model, device):
     # Get predictions
     with torch.no_grad():
         pred = model(x)
-        predicted_idx = pred.argmax(1).item()
+        predicted_idx = pred.argmax(0).item()
     
     return predicted_idx, class_names[predicted_idx]

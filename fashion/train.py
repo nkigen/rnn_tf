@@ -15,8 +15,8 @@ print(f"using {device} device")
 
 # Hyperparameters
 batch_size = 64
-learning_rate = 0.001
-num_epochs = 5
+learning_rate = 0.0001
+num_epochs = 20
 
 # Define transformations
 transform = transforms.Compose([

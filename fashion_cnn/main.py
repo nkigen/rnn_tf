@@ -8,7 +8,10 @@ if __name__ == "__main__":
     device = utils.set_accelerator()
     
     # Load the model (Option 2 - recommended)
-    model = inference.load_model(f'{utils.model_dir}/fashion_mnist_{utils.model_param_file_suffix}', device)
+    model_path=f'{utils.model_dir}/fashion_mnist_{utils.model_param_file_suffix}'
+    
+    print(f"using path {model_path}")
+    model = inference.load_model(model_path, device)
     
     # Load a test image
     transform = transforms.Compose([
@@ -24,7 +27,7 @@ if __name__ == "__main__":
     )
     
     # Get a sample image
-    img, label = test_dataset[7]
+    img, label = test_dataset[3]
     
     # Make prediction
     predicted_idx, predicted_class = inference.predict_image(img, model, device)
